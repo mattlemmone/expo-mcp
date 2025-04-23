@@ -3,10 +3,17 @@ import { FastMCP } from "fastmcp";
 import { z } from "zod";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { addExpoTools, setupShutdownHandlers } from "./expo-tools.js"; // Add .js extension
+import { LogManager, addLogTools } from "./log-manager.js"; // Add .js extension
 // Create a new FastMCP server
 const server = new FastMCP({
-    name: "File Server",
+    name: "Expo File Server",
     version: "1.0.0",
+});
+// Create the log manager for enhanced logging
+const logManager = new LogManager({
+    maxLogEntries: 2000,
+    logFilePath: path.join(process.cwd(), "logs", "expo.log"),
 });
 // Define the readFile tool
 server.addTool({
@@ -21,15 +28,15 @@ server.addTool({
             // Ensure the path is safe (no directory traversal)
             const normalizedPath = path.normalize(args.filePath);
             // Read the file
-            const fileContent = await fs.readFile(normalizedPath, 'utf8');
+            const fileContent = await fs.readFile(normalizedPath, "utf8");
             log.info(`Successfully read file: ${normalizedPath}`);
             return {
                 content: [
                     {
                         type: "text",
-                        text: fileContent
-                    }
-                ]
+                        text: fileContent,
+                    },
+                ],
             };
         }
         catch (error) {
@@ -61,9 +68,9 @@ server.addTool({
                 content: [
                     {
                         type: "text",
-                        text: `Successfully wrote ${args.content.length} characters to ${normalizedPath}`
-                    }
-                ]
+                        text: `Successfully wrote ${args.content.length} characters to ${normalizedPath}`,
+                    },
+                ],
             };
         }
         catch (error) {
@@ -77,7 +84,9 @@ server.addTool({
     name: "listFiles",
     description: "List files in a directory",
     parameters: z.object({
-        directoryPath: z.string().describe("The path to the directory to list files from"),
+        directoryPath: z
+            .string()
+            .describe("The path to the directory to list files from"),
     }),
     execute: async (args, { log }) => {
         try {
@@ -87,19 +96,19 @@ server.addTool({
             // Read the directory
             const files = await fs.readdir(normalizedPath, { withFileTypes: true });
             // Format the results
-            const fileList = files.map(file => ({
+            const fileList = files.map((file) => ({
                 name: file.name,
                 isDirectory: file.isDirectory(),
-                path: path.join(normalizedPath, file.name)
+                path: path.join(normalizedPath, file.name),
             }));
             log.info(`Successfully listed ${fileList.length} files in ${normalizedPath}`);
             return {
                 content: [
                     {
                         type: "text",
-                        text: JSON.stringify(fileList, null, 2)
-                    }
-                ]
+                        text: JSON.stringify(fileList, null, 2),
+                    },
+                ],
             };
         }
         catch (error) {
@@ -108,9 +117,45 @@ server.addTool({
         }
     },
 });
+console.error("About to add Expo tools...");
+// Add the Expo tools to the server - Pass logManager to integrate logging
+addExpoTools(server);
+console.error("About to add log tools...");
+// Add the enhanced log tools to the server
+addLogTools(server, logManager);
+// Set up shutdown handlers for process cleanup
+setupShutdownHandlers();
+// Create a simple debug tool to list all tools
+server.addTool({
+    name: "listTools",
+    description: "List all available tools in this MCP server",
+    parameters: z.object({}),
+    execute: async (_, { log }) => {
+        try {
+            // Get all the tools (this is a workaround since we don't have direct access to the tools list)
+            const tools = Object.keys(server["_tools"] || {});
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Available tools:\n${tools.map((tool) => `- ${tool}`).join("\n")}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            log.error(`Error listing tools: ${error.message}`);
+            throw new Error(`Failed to list tools: ${error.message}`);
+        }
+    },
+});
+// Log startup information
+console.error("Expo File Server started. Ready to handle MCP requests.");
+console.error(`- Version: Expo File Server 1.0.0`);
+console.error(`- Log file: ${path.join(process.cwd(), "logs", "expo.log")}`);
+console.error("- Available tools: readFile, writeFile, listFiles, expoStart, expoStop, expoLogs, expoStatus, expoGetLogs, expoLogStats, expoClearLogs, listTools");
 // Start the server with stdio transport
 server.start({
     transportType: "stdio",
 });
-console.error("File Server started. Ready to handle MCP requests.");
 //# sourceMappingURL=index.js.map

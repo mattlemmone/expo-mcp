@@ -1,3 +1,4 @@
+// Updated for ES modules compatibility
 import { spawn } from "child_process";
 import { EventEmitter } from "events";
 /**
@@ -152,13 +153,4 @@ export async function createProcess(options) {
     await manager.start();
     return manager;
 }
-// Example usage
-// const expoProcess = await createProcess({
-//   command: 'expo',
-//   args: ['start'],
-//   projectPath: '/path/to/your/expo/project',
-//   onStderr: (data) => console.error(`Expo Error: ${data}`),
-//   onStdout: (data) => console.log(`Expo Output: ${data}`),
-//   onExit: (code) => console.log(`Expo process exited with code ${code}`)
-// });
 //# sourceMappingURL=process.js.map
