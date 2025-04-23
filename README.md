@@ -47,25 +47,6 @@ npm run inspect
 | `listFiles`     | List files in a directory                  |
 | `listTools`     | List all tools registered in the server    |
 
-## Project Structure
-
-```
-src/
-├── expo-tools.ts     # Expo-related MCP tools
-├── index.ts          # Server entry point
-├── log-manager.ts    # In-memory + file logger
-├── process.ts        # Cross-platform process management
-.gitignore
-package.json
-tsconfig.json
-```
-
-## Tech Stack
-
-- TypeScript
-- FastMCP (Model Context Protocol server)
-- Zod for input validation
-- Node.js 23.x
 
 ## Installation
 
