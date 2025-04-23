@@ -171,14 +171,6 @@ server.addTool({
   },
 });
 
-// Log startup information
-console.log("Expo File Server started. Ready to handle MCP requests.");
-console.log(`- Version: Expo File Server 1.0.0`);
-console.log(`- Log file: ${path.join(process.cwd(), "logs", "expo.log")}`);
-console.log(
-  "- Available tools: readFile, writeFile, listFiles, expoStart, expoStop, expoLogs, expoStatus, expoGetLogs, expoLogStats, expoClearLogs, listTools",
-);
-
 // Start the server with stdio transport
 server.start({
   transportType: "stdio",
