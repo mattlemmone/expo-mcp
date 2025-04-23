@@ -163,6 +163,13 @@ export function addLogTools(server: FastMCP, logManager: LogManager) {
     }),
     execute: async (args, { log }) => {
       try {
+        log.info("Retrieving filtered logs", { 
+          count: args.count, 
+          type: args.type,
+          filter: args.filter || "none",
+          after: args.after || "none"
+        });
+        
         // Get filtered logs
         const logs = logManager.getLogs({
           type: args.type as "stdout" | "stderr" | "all",
@@ -170,6 +177,8 @@ export function addLogTools(server: FastMCP, logManager: LogManager) {
           filter: args.filter,
           after: args.after
         });
+        
+        log.info(`Found ${logs.length} matching log entries`);
         
         if (logs.length === 0) {
           return {
@@ -221,7 +230,10 @@ export function addLogTools(server: FastMCP, logManager: LogManager) {
     parameters: z.object({}),
     execute: async (_, { log }) => {
       try {
+        log.info("Retrieving log statistics");
         const stats = logManager.getStats();
+        
+        log.info(`Log statistics retrieved: ${stats.totalEntries} total entries`);
         
         return {
           content: [
@@ -250,7 +262,9 @@ export function addLogTools(server: FastMCP, logManager: LogManager) {
     parameters: z.object({}),
     execute: async (_, { log }) => {
       try {
+        log.info("Clearing all logs");
         logManager.clearLogs();
+        log.info("All logs successfully cleared");
         
         return {
           content: [

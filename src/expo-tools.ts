@@ -23,8 +23,6 @@ declare global {
  * @param logManager Optional LogManager instance for enhanced logging
  */
 export function addExpoTools(server: FastMCP) {
-  console.error("Registering Expo tools...");
-
   // Define the expoStart tool
   server.addTool({
     name: "expoStart",
@@ -271,8 +269,6 @@ export function addExpoTools(server: FastMCP) {
       }
     },
   });
-
-  console.error("Expo tools registered successfully");
 }
 
 /**
@@ -281,6 +277,7 @@ export function addExpoTools(server: FastMCP) {
 export function setupShutdownHandlers() {
   const handleShutdown = async () => {
     if (global.processes) {
+      // Using console.error for critical shutdown messages
       console.error(
         "Shutting down MCP server, stopping all managed processes...",
       );

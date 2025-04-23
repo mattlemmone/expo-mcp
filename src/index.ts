@@ -137,11 +137,9 @@ server.addTool({
   },
 });
 
-console.log("About to add Expo tools...");
 // Add the Expo tools to the server - Pass logManager to integrate logging
 addExpoTools(server);
 
-console.log("About to add log tools...");
 // Add the enhanced log tools to the server
 addLogTools(server, logManager);
 
@@ -184,5 +182,9 @@ console.log(
 // Start the server with stdio transport
 server.start({
   transportType: "stdio",
+});
+
+process.on("SIGINT", () => {
+  process.exit(0);
 });
 
