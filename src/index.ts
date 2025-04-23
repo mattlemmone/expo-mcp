@@ -137,11 +137,11 @@ server.addTool({
   },
 });
 
-console.error("About to add Expo tools...");
+console.log("About to add Expo tools...");
 // Add the Expo tools to the server - Pass logManager to integrate logging
 addExpoTools(server);
 
-console.error("About to add log tools...");
+console.log("About to add log tools...");
 // Add the enhanced log tools to the server
 addLogTools(server, logManager);
 
@@ -174,10 +174,10 @@ server.addTool({
 });
 
 // Log startup information
-console.error("Expo File Server started. Ready to handle MCP requests.");
-console.error(`- Version: Expo File Server 1.0.0`);
-console.error(`- Log file: ${path.join(process.cwd(), "logs", "expo.log")}`);
-console.error(
+console.log("Expo File Server started. Ready to handle MCP requests.");
+console.log(`- Version: Expo File Server 1.0.0`);
+console.log(`- Log file: ${path.join(process.cwd(), "logs", "expo.log")}`);
+console.log(
   "- Available tools: readFile, writeFile, listFiles, expoStart, expoStop, expoLogs, expoStatus, expoGetLogs, expoLogStats, expoClearLogs, listTools",
 );
 
