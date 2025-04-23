@@ -9,7 +9,7 @@ import { LogManager, addLogTools } from "./log-manager.js"; // Add .js extension
 
 // Create a new FastMCP server
 const server = new FastMCP({
-  name: "Expo File Server",
+  name: "Expo MCP Server",
   version: "1.0.0",
 });
 
