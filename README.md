@@ -67,7 +67,7 @@ npm run build
 - Logs are not helpful when the server fails to start; improve error diagnostics
 - Clients misunderstand `expoLogs` usage, leading to incorrect assumptions and unnecessary restarts
 - Should query logs from persisted log files instead of in-memory child process events for robustness
-- `npm run start` is... unkillable?
+- Should we just... read logs instead of this process nonsense?
 
 ## License
 
