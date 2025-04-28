@@ -2,10 +2,8 @@
 
 import { FastMCP } from "fastmcp";
 import { z } from "zod";
-import * as fs from "fs/promises";
 import * as path from "path";
-import { addExpoTools, setupShutdownHandlers } from "./expo-tools.js"; // Add .js extension
-import { LogManager, addLogTools } from "./log-manager.js"; // Add .js extension
+import { readFile, writeFile, listFiles, tailFile } from "./file.js";
 
 // Create a new FastMCP server
 const server = new FastMCP({
@@ -13,87 +11,30 @@ const server = new FastMCP({
   version: "1.0.0",
 });
 
-// Create the log manager for enhanced logging
-const logManager = new LogManager({
-  maxLogEntries: 2000,
-  logFilePath: path.join(process.cwd(), "logs", "expo.log"),
-});
+// Create an addTool function to pass to tool modules
+const addTool = (tool: any) => server.addTool(tool);
 
-// Define the readFile tool
-server.addTool({
+// Add the file tools to the server
+addTool({
   name: "readFile",
   description: "Read the contents of a file",
   parameters: z.object({
     filePath: z.string().describe("The path to the file to read"),
   }),
-  execute: async (args, { log }) => {
-    try {
-      log.info(`Reading file at path: ${args.filePath}`);
-
-      // Ensure the path is safe (no directory traversal)
-      const normalizedPath = path.normalize(args.filePath);
-
-      // Read the file
-      const fileContent = await fs.readFile(normalizedPath, "utf8");
-
-      log.info(`Successfully read file: ${normalizedPath}`);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: fileContent,
-          },
-        ],
-      };
-    } catch (error: any) {
-      log.error(`Error reading file: ${error.message}`);
-      throw new Error(`Failed to read file: ${error.message}`);
-    }
-  },
+  execute: readFile,
 });
 
-// Define the writeFile tool
-server.addTool({
+addTool({
   name: "writeFile",
   description: "Write content to a file",
   parameters: z.object({
     filePath: z.string().describe("The path to the file to write"),
     content: z.string().describe("The content to write to the file"),
   }),
-  execute: async (args, { log }) => {
-    try {
-      log.info(`Writing to file at path: ${args.filePath}`);
-
-      // Ensure the path is safe (no directory traversal)
-      const normalizedPath = path.normalize(args.filePath);
-
-      // Create the directory if it doesn't exist
-      const directory = path.dirname(normalizedPath);
-      await fs.mkdir(directory, { recursive: true });
-
-      // Write to the file
-      await fs.writeFile(normalizedPath, args.content);
-
-      log.info(`Successfully wrote to file: ${normalizedPath}`);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Successfully wrote ${args.content.length} characters to ${normalizedPath}`,
-          },
-        ],
-      };
-    } catch (error: any) {
-      log.error(`Error writing file: ${error.message}`);
-      throw new Error(`Failed to write file: ${error.message}`);
-    }
-  },
+  execute: writeFile,
 });
 
-// Define the listFiles tool
-server.addTool({
+addTool({
   name: "listFiles",
   description: "List files in a directory",
   parameters: z.object({
@@ -101,50 +42,18 @@ server.addTool({
       .string()
       .describe("The path to the directory to list files from"),
   }),
-  execute: async (args, { log }) => {
-    try {
-      log.info(`Listing files in directory: ${args.directoryPath}`);
-
-      // Ensure the path is safe (no directory traversal)
-      const normalizedPath = path.normalize(args.directoryPath);
-
-      // Read the directory
-      const files = await fs.readdir(normalizedPath, { withFileTypes: true });
-
-      // Format the results
-      const fileList = files.map((file) => ({
-        name: file.name,
-        isDirectory: file.isDirectory(),
-        path: path.join(normalizedPath, file.name),
-      }));
-
-      log.info(
-        `Successfully listed ${fileList.length} files in ${normalizedPath}`,
-      );
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(fileList, null, 2),
-          },
-        ],
-      };
-    } catch (error: any) {
-      log.error(`Error listing files: ${error.message}`);
-      throw new Error(`Failed to list files: ${error.message}`);
-    }
-  },
+  execute: listFiles,
 });
 
-// Add the Expo tools to the server - Pass logManager to integrate logging
-addExpoTools(server);
-
-// Add the enhanced log tools to the server
-addLogTools(server, logManager);
-
-// Set up shutdown handlers for process cleanup
-setupShutdownHandlers();
+addTool({
+  name: "tailFile",
+  description: "Read the last N lines from a file",
+  parameters: z.object({
+    filePath: z.string().describe("The path to the file to tail"),
+    lines: z.number().int().positive().describe("Number of lines to read from the end of the file"),
+  }),
+  execute: tailFile,
+});
 
 // Create a simple debug tool to list all tools
 server.addTool({
@@ -160,7 +69,9 @@ server.addTool({
         content: [
           {
             type: "text",
-            text: `Available tools:\n${tools.map((tool) => `- ${tool}`).join("\n")}`,
+            text: `Available tools:\n${tools
+              .map((tool) => `- ${tool}`)
+              .join("\n")}`,
           },
         ],
       };
@@ -179,4 +90,3 @@ server.start({
 process.on("SIGINT", () => {
   process.exit(0);
 });
-
