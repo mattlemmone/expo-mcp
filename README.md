@@ -1,6 +1,7 @@
 # File MCP
 
 A Model Context Protocol (MCP) server that provides file system operations through a standardized API.
+Mainly just doing this so I can prototype and integrate error logs into mcp clients.
 
 ## Usage
 
