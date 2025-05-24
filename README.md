@@ -1,5 +1,7 @@
 # File MCP
 
+[![smithery badge](https://smithery.ai/badge/@mattlemmone/file-mcp)](https://smithery.ai/server/@mattlemmone/file-mcp)
+
 A Model Context Protocol (MCP) server that provides file system operations through a standardized API.
 Mainly just doing this so I can prototype and integrate error logs into mcp clients.
 
@@ -36,6 +38,15 @@ npm run inspect
 
 ## Installation
 
+### Installing via Smithery
+
+To install File MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@mattlemmone/file-mcp):
+
+```bash
+npx -y @smithery/cli install @mattlemmone/file-mcp --client claude
+```
+
+### Manual Installation
 ```bash
 npm install
 ```
